@@ -1,0 +1,3 @@
+= Pod Escape Deploy
+
+Repository to store several ways of deploying Pod Escape game. Play it on https://podescape.io 
