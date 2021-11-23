@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+  name: mongo
+  namespace: podescape
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: mongo
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        deployment: mongo
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_ADMIN_PASSWORD
+          value: password
+        - name: MONGODB_DATABASE
+          value: highscores
+        - name: MONGODB_PASSWORD
+          value: password
+        - name: MONGODB_USER
+          value: user
+        image: mongo:latest
+        imagePullPolicy: IfNotPresent
+        name: mongo
+        ports:
+        - containerPort: 27017
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /data/configdb
+          name: mongo-volume-1
+        - mountPath: /data/db
+          name: mongo-volume-2
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: mongo-volume-1
+      - emptyDir: {}
+        name: mongo-volume-2
