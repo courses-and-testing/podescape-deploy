@@ -4,7 +4,8 @@ metadata:
   name: deploy-podescape
 spec:
   workspaces:
-  - name: shared-workspace
+  - name: mongo-workspace
+  - name: api-workspace
   params:
   - name: git-url-mongo
     type: string
@@ -16,6 +17,13 @@ spec:
   - name: manifest-dir
     type: string
     description: The directory in source that contains yaml manifests
+  - name: git-url-api
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision-api
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "main"
   tasks:
   - name: fetch-mongo-repository
     taskRef:
@@ -23,7 +31,7 @@ spec:
       kind: ClusterTask
     workspaces:
     - name: output
-      workspace: shared-workspace
+      workspace: mongo-workspace
     params:
     - name: url
       value: $(params.git-url-mongo)
@@ -38,9 +46,25 @@ spec:
       name: apply-manifests
     workspaces:
     - name: source
-      workspace: shared-workspace
+      workspace: mongo-workspace
     params:
     - name: manifest_dir
       value: $(params.manifest-dir)
     runAfter:
     - fetch-mongo-repository
+  - name: fetch-api-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: api-workspace
+    params:
+    - name: url
+      value: $(params.git-url-api)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision-api)

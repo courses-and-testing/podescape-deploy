@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: deploy-podescape
+  name: deploy-podescape-run
 spec:
   serviceAccountName: podescape-deployer
   pipelineRef:
@@ -11,8 +11,18 @@ spec:
     value: https://github.com/ernesgonzalez33/podescape-deploy
   - name: manifest-dir
     value: "resources/"
+  - name: git-url-api
+    value: https://github.com/ernesgonzalez33/openshift-highscores-api-service
   workspaces: 
-  - name: shared-workspace 
+  - name: mongo-workspace 
+    volumeClaimTemplate: 
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 500Mi
+  - name: api-workspace 
     volumeClaimTemplate: 
       spec:
         accessModes:
