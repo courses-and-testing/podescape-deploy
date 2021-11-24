@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: deploy-podescape
+spec:
+  serviceAccountName: podescape-deployer
+  pipelineRef:
+    name: deploy-podescape
+  params:
+  - name: git-url-mongo
+    value: https://github.com/ernesgonzalez33/podescape-deploy
+  - name: manifest-dir
+    value: "resources/"
+  workspaces: 
+  - name: shared-workspace 
+    volumeClaimTemplate: 
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 500Mi

@@ -1,0 +1,46 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: deploy-podescape
+spec:
+  workspaces:
+  - name: shared-workspace
+  params:
+  - name: git-url-mongo
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision-mongo
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "main"
+  - name: manifest-dir
+    type: string
+    description: The directory in source that contains yaml manifests
+  tasks:
+  - name: fetch-mongo-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url-mongo)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision-mongo)
+  - name: apply-manifests
+    taskRef:
+      name: apply-manifests
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    params:
+    - name: manifest_dir
+      value: $(params.manifest-dir)
+    runAfter:
+    - fetch-mongo-repository
